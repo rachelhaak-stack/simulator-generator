@@ -64,7 +64,10 @@ textarea:focus, input[type=text]:focus, select:focus { outline: none; border-col
 .output-header span { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
 .output-header button { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: transparent; color: var(--text-secondary); cursor: pointer; }
 .output-header button:hover { background: var(--surface-0); }
-iframe { width: 100%; border: 0.5px solid var(--border); border-radius: 0 0 12px 12px; min-height: 650px; display: block; }
+.open-panel { padding: 2rem; text-align: center; border: 0.5px solid var(--border); border-radius: 0 0 12px 12px; background: var(--surface-2); }
+.open-panel p { font-size: 14px; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5; }
+.open-btn { font-family: inherit; font-size: 15px; font-weight: 500; border-radius: var(--radius); padding: 12px 24px; cursor: pointer; border: none; background: var(--fill-accent); color: var(--on-accent); transition: background 0.15s; text-decoration: none; display: inline-block; }
+.open-btn:hover { background: var(--fill-accent-hover); }
 @media (max-width: 500px) { .row2 { grid-template-columns: 1fr; } }
 </style>
 </head>
@@ -123,7 +126,10 @@ iframe { width: 100%; border: 0.5px solid var(--border); border-radius: 0 0 12px
       <span id="output-label">Generated simulator</span>
       <button onclick="reset()">Generate another</button>
     </div>
-    <iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div class="open-panel">
+      <p>Your simulator is ready. Open it in a new tab to use it — the timer and all interactions work fully there.</p>
+      <a id="open-btn" class="open-btn" href="#" target="_blank">Open simulator <i class="ti ti-external-link"></i></a>
+    </div>
   </div>
 </div>
 
@@ -167,16 +173,11 @@ async function generate() {
 
     var label = scenario.split('—')[0].trim().slice(0, 50);
     document.getElementById('output-label').textContent = label + ' simulator';
-    document.getElementById('frame').srcdoc = data.html;
+    var blob = new Blob([data.html], { type: 'text/html' });
+    var url = URL.createObjectURL(blob);
+    document.getElementById('open-btn').href = url;
     document.getElementById('output').classList.add('visible');
     document.getElementById('status').classList.remove('visible');
-
-    setTimeout(function() {
-      try {
-        var h = document.getElementById('frame').contentDocument.body.scrollHeight;
-        if (h > 500) document.getElementById('frame').style.minHeight = (h + 40) + 'px';
-      } catch(e) {}
-    }, 2000);
 
   } catch(err) {
     showError('Something went wrong: ' + err.message);
