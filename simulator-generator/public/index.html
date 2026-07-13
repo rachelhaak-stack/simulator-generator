@@ -141,7 +141,7 @@ function setExample(text) {
 
 function reset() {
   document.getElementById('output').classList.remove('visible');
-  document.getElementById('frame').srcdoc = '';
+  document.getElementById('open-btn').href = '#';
   document.getElementById('generate-btn').disabled = false;
   document.getElementById('status').classList.remove('visible');
   document.getElementById('error').classList.remove('visible');
@@ -171,11 +171,17 @@ async function generate() {
     var data = await res.json();
     if (!res.ok || data.error) { showError(data.error || 'Something went wrong. Try again.'); return; }
 
+    var saveRes = await fetch('/api/simulator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html: data.html })
+    });
+    var saveData = await saveRes.json();
+    if (!saveRes.ok || saveData.error) { showError('Failed to save simulator. Try again.'); return; }
+
     var label = scenario.split('—')[0].trim().slice(0, 50);
     document.getElementById('output-label').textContent = label + ' simulator';
-    var blob = new Blob([data.html], { type: 'text/html' });
-    var url = URL.createObjectURL(blob);
-    document.getElementById('open-btn').href = url;
+    document.getElementById('open-btn').href = '/api/simulator?id=' + saveData.id;
     document.getElementById('output').classList.add('visible');
     document.getElementById('status').classList.remove('visible');
 
