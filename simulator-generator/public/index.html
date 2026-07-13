@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator Generator</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --text-primary: #1a1a18;
+  --text-secondary: #5f5e5a;
+  --text-muted: #888780;
+  --surface-0: #f1efe8;
+  --surface-1: #e8e6df;
+  --surface-2: #ffffff;
+  --border: rgba(0,0,0,0.12);
+  --border-strong: rgba(0,0,0,0.2);
+  --radius: 8px;
+  --fill-accent: #185fa5;
+  --fill-accent-hover: #0c447c;
+  --on-accent: #ffffff;
+  --bg-accent: #e6f1fb;
+  --border-accent: #85b7eb;
+  --text-accent: #185fa5;
+  --fill-success: #3b6d11;
+  --bg-success: #eaf3de;
+  --text-success: #3b6d11;
+  --fill-danger: #a32d2d;
+  --bg-danger: #fcebeb;
+  --border-danger: #f09595;
+  --text-danger: #a32d2d;
+  --bg-warning: #faeeda;
+  --border-warning: #ef9f27;
+  --text-warning: #854f0b;
+}
+body { font-family: system-ui, -apple-system, sans-serif; background: var(--surface-0); color: var(--text-primary); min-height: 100vh; padding: 2rem 1rem; }
+.wrap { max-width: 680px; margin: 0 auto; }
+.logo { font-size: 13px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+h1 { font-size: 28px; font-weight: 500; margin-bottom: 6px; }
+.subtitle { font-size: 15px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem; }
+.card { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+label { font-size: 13px; font-weight: 500; color: var(--text-secondary); display: block; margin-bottom: 6px; }
+textarea, input[type=text], select { width: 100%; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--text-primary); background: var(--surface-2); line-height: 1.5; resize: vertical; }
+textarea:focus, input[type=text]:focus, select:focus { outline: none; border-color: var(--border-accent); box-shadow: 0 0 0 3px rgba(24,95,165,0.08); }
+.field { margin-bottom: 1rem; }
+.hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.pill { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--border-accent); background: var(--bg-accent); color: var(--text-accent); cursor: pointer; transition: all 0.15s; }
+.pill:hover { background: var(--fill-accent); color: var(--on-accent); border-color: var(--fill-accent); }
+.btn { font-family: inherit; font-size: 15px; font-weight: 500; border-radius: var(--radius); padding: 12px 24px; cursor: pointer; width: 100%; border: none; background: var(--fill-accent); color: var(--on-accent); transition: background 0.15s; }
+.btn:hover { background: var(--fill-accent-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.status { text-align: center; padding: 1rem; color: var(--text-secondary); font-size: 14px; display: none; }
+.status.visible { display: block; }
+.spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--fill-accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 8px; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error { background: var(--bg-danger); border: 0.5px solid var(--border-danger); border-radius: var(--radius); padding: 10px 14px; font-size: 13px; color: var(--text-danger); margin-top: 12px; display: none; }
+.error.visible { display: block; }
+.output { margin-top: 1.5rem; display: none; }
+.output.visible { display: block; }
+.output-header { background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 12px 12px 0 0; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: none; }
+.output-header span { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.output-header button { font-family: inherit; font-size: 12px; padding: 5px 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: transparent; color: var(--text-secondary); cursor: pointer; }
+.output-header button:hover { background: var(--surface-0); }
+iframe { width: 100%; border: 0.5px solid var(--border); border-radius: 0 0 12px 12px; min-height: 650px; display: block; }
+@media (max-width: 500px) { .row2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">Learning design tools</div>
+  <h1>Simulator generator</h1>
+  <p class="subtitle">Describe the template or scenario you want to turn into a timed practice simulator. It'll generate a working tool your learners can use straight away.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>What kind of simulator do you want to build?</label>
+      <textarea id="scenario" rows="3" placeholder="e.g. A meeting agenda template with decision capture — officials need to run meetings that end with clear decisions, owners, and follow-up actions recorded"></textarea>
+      <div class="hint">Be specific about what the learner needs to produce and why it's hard under pressure.</div>
+      <div class="examples">
+        <div class="pill" onclick="setExample('A crisis brief template — officials need to produce a structured response when a story breaks, under deadline pressure, covering facts, unknowns, agreed line, and actions')">Crisis brief</div>
+        <div class="pill" onclick="setExample('A meeting agenda template with decision capture — officials need to run a meeting that ends with clear decisions recorded, each with an owner and a deadline, not just a list of topics discussed')">Meeting agenda</div>
+        <div class="pill" onclick="setExample('A decision log template — officials need to record what was decided, by whom, on what evidence, and what happens next, so decisions don\'t get lost or disputed later')">Decision log</div>
+        <div class="pill" onclick="setExample('A stakeholder briefing template — officials need to brief a senior minister on a policy issue in 2 minutes: the problem, the options, and a clear recommendation')">Stakeholder briefing</div>
+        <div class="pill" onclick="setExample('A media handling script — officials need to prepare a spokesperson for a press conference: anticipated questions, agreed answers, and lines not to cross')">Media handling</div>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div>
+        <label>Time limit</label>
+        <select id="timelimit">
+          <option value="5">5 minutes</option>
+          <option value="10" selected>10 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="20">20 minutes</option>
+        </select>
+      </div>
+      <div>
+        <label>Difficulty</label>
+        <select id="difficulty">
+          <option value="straightforward">Straightforward</option>
+          <option value="moderate" selected>Moderate — one complication</option>
+          <option value="challenging">Challenging — multiple curveballs</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Any specific context? (optional)</label>
+      <input type="text" id="context" placeholder="e.g. UK Combined Authority, newly elected mayor, small team of 3">
+    </div>
+
+    <button class="btn" id="generate-btn" onclick="generate()">Generate simulator</button>
+    <div class="status" id="status"><span class="spinner"></span>Building your simulator — this takes about 20 seconds...</div>
+    <div class="error" id="error"></div>
+  </div>
+
+  <div class="output" id="output">
+    <div class="output-header">
+      <span id="output-label">Generated simulator</span>
+      <button onclick="reset()">Generate another</button>
+    </div>
+    <iframe id="frame" sandbox="allow-scripts allow-same-origin"></iframe>
+  </div>
+</div>
+
+<script>
+function setExample(text) {
+  document.getElementById('scenario').value = text;
+  document.getElementById('scenario').focus();
+}
+
+function reset() {
+  document.getElementById('output').classList.remove('visible');
+  document.getElementById('frame').srcdoc = '';
+  document.getElementById('generate-btn').disabled = false;
+  document.getElementById('status').classList.remove('visible');
+  document.getElementById('error').classList.remove('visible');
+}
+
+async function generate() {
+  var scenario = document.getElementById('scenario').value.trim();
+  if (!scenario) { showError('Please describe what kind of simulator you want to build.'); return; }
+
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('status').classList.add('visible');
+  document.getElementById('error').classList.remove('visible');
+  document.getElementById('output').classList.remove('visible');
+
+  try {
+    var res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        scenario: scenario,
+        timelimit: document.getElementById('timelimit').value,
+        difficulty: document.getElementById('difficulty').value,
+        context: document.getElementById('context').value.trim()
+      })
+    });
+
+    var data = await res.json();
+    if (!res.ok || data.error) { showError(data.error || 'Something went wrong. Try again.'); return; }
+
+    var label = scenario.split('—')[0].trim().slice(0, 50);
+    document.getElementById('output-label').textContent = label + ' simulator';
+    document.getElementById('frame').srcdoc = data.html;
+    document.getElementById('output').classList.add('visible');
+    document.getElementById('status').classList.remove('visible');
+
+    setTimeout(function() {
+      try {
+        var h = document.getElementById('frame').contentDocument.body.scrollHeight;
+        if (h > 500) document.getElementById('frame').style.minHeight = (h + 40) + 'px';
+      } catch(e) {}
+    }, 2000);
+
+  } catch(err) {
+    showError('Something went wrong: ' + err.message);
+  }
+}
+
+function showError(msg) {
+  var el = document.getElementById('error');
+  el.textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('status').classList.remove('visible');
+  document.getElementById('generate-btn').disabled = false;
+}
+</script>
+</body>
+</html>
